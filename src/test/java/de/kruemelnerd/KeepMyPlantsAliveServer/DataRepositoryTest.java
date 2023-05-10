@@ -24,7 +24,6 @@ import static org.mockito.Mockito.verify;
 
 public class DataRepositoryTest {
 
-    private AutoCloseable closeable;
     @Spy
     ObjectMapper objectMapper;
     @InjectMocks
@@ -115,7 +114,7 @@ public class DataRepositoryTest {
 
     @Test
     void remove_File_with_data() throws IOException {
-        deviceDataRepository.remove();
+        deviceDataRepository.deleteEverything();
 
         assertThat(deviceDataRepository.getAmountOfEntries(), is(0));
     }

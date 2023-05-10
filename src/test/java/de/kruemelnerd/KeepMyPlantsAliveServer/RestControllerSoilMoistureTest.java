@@ -1,9 +1,7 @@
 package de.kruemelnerd.KeepMyPlantsAliveServer;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayNameGeneration;
-import org.junit.jupiter.api.DisplayNameGenerator;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
+import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.HttpStatus;
@@ -17,11 +15,11 @@ import static org.hamcrest.Matchers.is;
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 public class RestControllerSoilMoistureTest {
 
-
     @LocalServerPort
     private int port;
 
     @BeforeEach
+    @AfterEach
     void setup() {
         check_cleanup_is_working();
     }
