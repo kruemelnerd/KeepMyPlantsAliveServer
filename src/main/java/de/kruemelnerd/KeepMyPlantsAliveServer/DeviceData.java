@@ -1,20 +1,24 @@
 package de.kruemelnerd.KeepMyPlantsAliveServer;
 
+import java.time.LocalDateTime;
+
 public class DeviceData {
     String device;
     String room;
     int numberInRoom;
     float soilMoisture;
+    LocalDateTime dateTime;
 
     //Just for Jackson
     public DeviceData() {
     }
 
-    public DeviceData(String device, String room, int numberInRoom, float soilMoisture) {
+    public DeviceData(String device, String room, int numberInRoom, float soilMoisture, LocalDateTime dateTime) {
         this.device = device;
         this.room = room;
         this.numberInRoom = numberInRoom;
         this.soilMoisture = soilMoisture;
+        this.dateTime = dateTime;
     }
 
     public String getDevice() {
@@ -47,5 +51,13 @@ public class DeviceData {
 
     public void setSoilMoisture(float soilMoisture) {
         this.soilMoisture = soilMoisture;
+    }
+
+    public LocalDateTime getDateTime() {
+        return dateTime;
+    }
+
+    public void setDateTime(LocalDateTime dateTime) {
+        this.dateTime = dateTime;
     }
 }

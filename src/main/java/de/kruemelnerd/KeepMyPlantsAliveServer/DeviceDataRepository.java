@@ -24,6 +24,7 @@ public class DeviceDataRepository {
 
     public DeviceDataRepository(ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;
+        this.objectMapper.findAndRegisterModules();
         this.objectMapper.configure(JsonParser.Feature.AUTO_CLOSE_SOURCE, true);
 
     }
