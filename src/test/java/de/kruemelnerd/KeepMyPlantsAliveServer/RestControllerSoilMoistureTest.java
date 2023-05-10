@@ -1,11 +1,12 @@
 package de.kruemelnerd.KeepMyPlantsAliveServer;
 
 import org.junit.jupiter.api.*;
-import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.context.ContextConfiguration;
+
+import java.time.LocalDateTime;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.is;
@@ -77,13 +78,14 @@ public class RestControllerSoilMoistureTest {
     }
 
     private void sendEntryToController(String device, String room, int numberInRoom, float soilMoisture) {
-        String inputJson = "{ \"device\": \"" + device + "\", \"room\": \"" + room + "\", \"numberInRoom\": " + numberInRoom
-                + ", \"soilMoisture\": " + soilMoisture + " }";
+        LocalDateTime expected = LocalDateTime.of(2023, 05, 10, 16, 06, 9);
 
+        String inputJson = "{ \"device\": \"" + device + "\", \"room\": \"" + room + "\", \"numberInRoom\": " + numberInRoom
+                + ", \"soilMoisture\": " + soilMoisture + ", \"dateTime\": \"2023-05-10T16:06:09\" }";
+        // example: { "device": "fancy fox", "room": "arbeitszimmer", "numberInRoom": 1, "soilMoisture": 5.1, "dateTime": "2023-05-10T16:06:09" }
 
         // Teste den POST-Request zum Speichern des Inputs
         given()
-
                 .contentType("application/json")
                 .body(inputJson)
                 .port(port)
@@ -94,13 +96,14 @@ public class RestControllerSoilMoistureTest {
                 .body("device", is(device))
                 .body("room", is(room))
                 .body("numberInRoom", is(numberInRoom))
-                .body("soilMoisture", is(soilMoisture));
+                .body("soilMoisture", is(soilMoisture))
+                .body("dateTime", is(expected.toString()));
     }
 
     @Test
     public void testInputAndStorage() {
         sendEntryToController("fancy fox", "arbeitszimmer", 1, 5.1f);
-        sendEntryToController("sneaky peaky", "arbeitszimmer",4 , 1f);
+        sendEntryToController("sneaky peaky", "arbeitszimmer", 4, 1f);
 
         // Teste den GET-Request zum Abrufen des gespeicherten Inputs
         given()
@@ -114,11 +117,13 @@ public class RestControllerSoilMoistureTest {
                 .body("[0].room", is("arbeitszimmer"))
                 .body("[0].numberInRoom", is(1))
                 .body("[0].soilMoisture", is(5.1F))
+                .body("[0].dateTime", is("2023-05-10T16:06:09"))
 
                 .body("[1].device", is("sneaky peaky"))
                 .body("[1].room", is("arbeitszimmer"))
                 .body("[1].numberInRoom", is(4))
-                .body("[1].soilMoisture", is(1F));
+                .body("[1].soilMoisture", is(1F))
+                .body("[1].dateTime", is("2023-05-10T16:06:09"));
     }
 
 
