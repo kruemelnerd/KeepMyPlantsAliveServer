@@ -6,6 +6,10 @@ public class DeviceData {
     int numberInRoom;
     float soilMoisture;
 
+    //Just for Jackson
+    public DeviceData() {
+    }
+
     public DeviceData(String device, String room, int numberInRoom, float soilMoisture) {
         this.device = device;
         this.room = room;
