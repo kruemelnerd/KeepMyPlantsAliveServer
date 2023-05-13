@@ -1,5 +1,7 @@
 package de.kruemelnerd.KeepMyPlantsAliveServer;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +16,8 @@ import java.util.List;
 @RequestMapping("/api")
 public class RestControllerSoilMoisture {
 
+    Logger logger = LogManager.getLogger(this.getClass());
+
     private final List<DeviceData> deviceDataList = new ArrayList<>();
 
     DeviceDataRepository repository;
@@ -27,6 +31,8 @@ public class RestControllerSoilMoisture {
     @PostMapping(value = "saveSoilMoisture")
     public ResponseEntity saveDeviceData(@RequestBody DeviceData data) {
         try {
+            logger.info("new Data received: " + data.toString());
+
             repository.save(data);
         } catch (IOException e) {
             e.printStackTrace(); // see note 2

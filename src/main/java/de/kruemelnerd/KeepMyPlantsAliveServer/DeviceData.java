@@ -60,4 +60,15 @@ public class DeviceData {
     public void setDateTime(LocalDateTime dateTime) {
         this.dateTime = dateTime;
     }
+
+    @Override
+    public String toString() {
+        return "DeviceData{" +
+                "device='" + device + '\'' +
+                ", room='" + room + '\'' +
+                ", numberInRoom=" + numberInRoom +
+                ", soilMoisture=" + soilMoisture +
+                ", dateTime=" + dateTime +
+                '}';
+    }
 }
