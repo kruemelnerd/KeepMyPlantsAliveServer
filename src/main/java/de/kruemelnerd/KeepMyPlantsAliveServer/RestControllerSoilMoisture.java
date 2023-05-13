@@ -13,6 +13,7 @@ import java.util.Collections;
 import java.util.List;
 
 @RestController
+@CrossOrigin(origins = "http://localhost", maxAge = 3600)
 @RequestMapping("/api")
 public class RestControllerSoilMoisture {
 
@@ -44,6 +45,7 @@ public class RestControllerSoilMoisture {
     @GetMapping("/data")
     ResponseEntity getAllData() {
         try {
+            logger.info("getAllData!");
             return new ResponseEntity<>(repository.getEntries(), HttpStatus.OK);
         } catch (IOException e) {
             e.printStackTrace(); // see note 2
@@ -55,6 +57,7 @@ public class RestControllerSoilMoisture {
     ResponseEntity deleteList() {
 
         try {
+            logger.info("EVERYTHING IS GONE!");
             repository.deleteEverything();
             return new ResponseEntity(HttpStatus.RESET_CONTENT);
         } catch (Exception e) {
