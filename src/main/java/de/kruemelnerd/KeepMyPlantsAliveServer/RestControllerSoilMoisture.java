@@ -8,13 +8,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 @RestController
-@CrossOrigin(origins = "http://localhost", maxAge = 3600)
 @RequestMapping("/api")
+@CrossOrigin(origins = "*", allowedHeaders = "*")
 public class RestControllerSoilMoisture {
 
     Logger logger = LogManager.getLogger(this.getClass());
@@ -33,7 +34,9 @@ public class RestControllerSoilMoisture {
     public ResponseEntity saveDeviceData(@RequestBody DeviceData data) {
         try {
             logger.info("new Data received: " + data.toString());
-
+            if (data.getSoilMoisture() < 0) {
+                data.setSoilMoisture(0);
+            }
             repository.save(data);
         } catch (IOException e) {
             e.printStackTrace(); // see note 2
@@ -75,6 +78,19 @@ public class RestControllerSoilMoisture {
             e.printStackTrace(); // see note 2
             return ResponseEntity.badRequest().body("Error while handeling the file.");
         }
+    }
+
+    @PostMapping("/testdata")
+    ResponseEntity generateTestData(@RequestParam int amount) {
+        for (int i = 0; i < amount; i++) {
+            int min = 0;
+            int max = 100;
+            double random = min + Math.random() * (max - min);
+            DeviceData deviceData = new DeviceData("Floating Fox", "arbeitszimmer", 1, (float) random, LocalDateTime.now());
+            this.saveDeviceData(deviceData);
+
+        }
+        return ResponseEntity.ok(amount);
     }
 
 }

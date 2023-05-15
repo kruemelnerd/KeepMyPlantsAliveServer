@@ -1,5 +1,5 @@
 // REST-API-URL
-const apiUrl = "http://localhost:8080/api/data";
+const apiUrl = "http://192.168.178.33:8080/api/data";
 
 // Daten von der REST-API abrufen
 fetch(apiUrl)
@@ -12,9 +12,8 @@ fetch(apiUrl)
 
 
         // Liniendiagramm erstellen
-        const ctx = document.getElementById("myChart").getContext("2d");
-
-
+//        const ctx = document.getElementById("myChart").getContext("2d");
+        const ctx = document.getElementById("myChart");
         new Chart(ctx, {
             type: 'line',
             data: {
@@ -30,10 +29,21 @@ fetch(apiUrl)
                 ]
             },
             options: {
+                animation : true,
                 responsive: true,
                 scales: {
                     y: {
-                        beginAtZero: true
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Prozent'
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Datum'
+                        }
                     }
                 },
                 plugins: {
@@ -42,62 +52,10 @@ fetch(apiUrl)
                     },
                     title: {
                         display: true,
-                        text: 'Chart.js Line Chart'
+                        text: 'Übersicht über alle Pflanzen im Hause'
                     }
                 }
             }
         });
-/*
-        const chart = {
-            type: 'line',
-            data: {
-                labels: labels,
-                datasets: [
-                    {
-                        label: "Bodenfeuchtigkeit",
-                        data: soilMoistureData,
-                        borderColor: "rgba(75, 192, 192, 1)",
-                        backgroundColor: "rgba(75, 192, 192, 0.2)"
-                    }
-                ]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: {
-                        position: 'top',
-                    },
-                    title: {
-                        display: true,
-                        text: 'Chart.js Line Chart'
-                    }
-                }
-            },
-        };
-*/
-        /*const chart = new Chart(ctx, {
-            type: "line",
-            data: {
-                labels: labels,
-                datasets: [
-                    {
-                        label: "Bodenfeuchtigkeit",
-                        data: soilMoistureData,
-                        borderColor: "rgba(75, 192, 192, 1)",
-                        backgroundColor: "rgba(75, 192, 192, 0.2)"
-                    }
-                ]
-            },
-            options: {
-                scales: {
-                    x: {
-                        type: "time",
-                        time: {
-                            unit: "second"
-                        }
-                    }
-                }
-            }
-        });*/
     })
     .catch(error => console.error("Fehler beim Abrufen der API-Daten:", error));
