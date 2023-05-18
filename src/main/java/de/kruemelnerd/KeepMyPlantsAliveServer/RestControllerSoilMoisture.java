@@ -30,12 +30,24 @@ public class RestControllerSoilMoisture {
     }
 
 
+    @Autowired
+    private TelegramBotService telegramBotService;
+
+    @GetMapping("/send")
+    public String sendMessage(@RequestParam String message) {
+        telegramBotService.sendMessage(message);
+        return "Message sent";
+    }
+
     @PostMapping(value = "saveSoilMoisture")
     public ResponseEntity saveDeviceData(@RequestBody DeviceData data) {
         try {
             logger.info("new Data received: " + data.toString());
             if (data.getSoilMoisture() < 0) {
                 data.setSoilMoisture(0);
+            }
+            if (data.getSoilMoisture() < 30) {
+                //telegramBotService.sendCriticalSoilMoistureStatus(data);
             }
             repository.save(data);
         } catch (IOException e) {
