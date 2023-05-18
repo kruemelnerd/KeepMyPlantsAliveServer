@@ -10,7 +10,7 @@
     </parent>
     <groupId>de.kruemelnerd</groupId>
     <artifactId>KeepMyPlantsAliveServer</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>0.1.0-SNAPSHOT</version>
     <name>KeepMyPlantsAliveServer</name>
     <description>A REST-API with some Frontend</description>
     <properties>
