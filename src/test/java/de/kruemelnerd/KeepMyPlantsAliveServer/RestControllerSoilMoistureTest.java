@@ -77,6 +77,20 @@ public class RestControllerSoilMoistureTest {
 
     }
 
+    @Test
+    public void send_negativ_SoilMoisture_to_controller() {
+        sendEntryToController("fancy fox", "arbeitszimmer", 1, -7f);
+
+        given()
+                .port(port)
+                .when()
+                .get("/api/amountOfEntries")
+                .then()
+                .statusCode(HttpStatus.OK.value())
+                .body("amount", is(1));
+
+    }
+
     private void sendEntryToController(String device, String room, int numberInRoom, float soilMoisture) {
         LocalDateTime expected = LocalDateTime.of(2023, 05, 10, 16, 06, 9);
 
@@ -84,6 +98,9 @@ public class RestControllerSoilMoistureTest {
                 + ", \"soilMoisture\": " + soilMoisture + ", \"dateTime\": \"2023-05-10T16:06:09\" }";
         // example: { "device": "fancy fox", "room": "arbeitszimmer", "numberInRoom": 1, "soilMoisture": 5.1, "dateTime": "2023-05-10T16:06:09" }
 
+        if (soilMoisture < 0f){
+            soilMoisture = 0f;
+        }
         // Teste den POST-Request zum Speichern des Inputs
         given()
                 .contentType("application/json")
@@ -102,8 +119,8 @@ public class RestControllerSoilMoistureTest {
 
     @Test
     public void testInputAndStorage() {
-        sendEntryToController("fancy fox", "arbeitszimmer", 1, 5.1f);
-        sendEntryToController("sneaky peaky", "arbeitszimmer", 4, 1f);
+        sendEntryToController("fancy fox", "arbeitszimmer", 1, 75.1f);
+        sendEntryToController("sneaky peaky", "arbeitszimmer", 4, 71f);
 
         // Teste den GET-Request zum Abrufen des gespeicherten Inputs
         given()
@@ -116,13 +133,13 @@ public class RestControllerSoilMoistureTest {
                 .body("[0].device", is("fancy fox"))
                 .body("[0].room", is("arbeitszimmer"))
                 .body("[0].numberInRoom", is(1))
-                .body("[0].soilMoisture", is(5.1F))
+                .body("[0].soilMoisture", is(75.1F))
                 .body("[0].dateTime", is("2023-05-10T16:06:09"))
 
                 .body("[1].device", is("sneaky peaky"))
                 .body("[1].room", is("arbeitszimmer"))
                 .body("[1].numberInRoom", is(4))
-                .body("[1].soilMoisture", is(1F))
+                .body("[1].soilMoisture", is(71F))
                 .body("[1].dateTime", is("2023-05-10T16:06:09"));
     }
 

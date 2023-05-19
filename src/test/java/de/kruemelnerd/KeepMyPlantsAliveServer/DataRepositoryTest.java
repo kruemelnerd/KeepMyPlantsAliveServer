@@ -38,7 +38,7 @@ public class DataRepositoryTest {
     @Test
     void saveDeviceDataTest() throws IOException {
         // given
-        DeviceData deviceData = new DeviceData("fancy fox", "arbeitszimmer", 1, 1.1f, LocalDateTime.now());
+        DeviceData deviceData = new DeviceData("fancy fox", "arbeitszimmer", 1, 81.1f, LocalDateTime.now());
 
         // when
         deviceDataRepository.save(deviceData);
@@ -51,10 +51,10 @@ public class DataRepositoryTest {
 
     @Test
     void save_multiple_DeviceData_to_file() throws IOException {
-        deviceDataRepository.save(new DeviceData("fancy fox", "arbeitszimmer", 1, 1.1f, LocalDateTime.now()));
-        deviceDataRepository.save(new DeviceData("sneaky peaky", "küche", 5, 9.1f, LocalDateTime.now()));
-        deviceDataRepository.save(new DeviceData("fancy fox", "arbeitszimmer", 1, 2.1f, LocalDateTime.now()));
-        deviceDataRepository.save(new DeviceData("sneaky peaky", "küche", 5, 10.1f, LocalDateTime.now()));
+        deviceDataRepository.save(new DeviceData("fancy fox", "arbeitszimmer", 1, 81.1f, LocalDateTime.now()));
+        deviceDataRepository.save(new DeviceData("sneaky peaky", "küche", 5, 89.1f, LocalDateTime.now()));
+        deviceDataRepository.save(new DeviceData("fancy fox", "arbeitszimmer", 1, 82.1f, LocalDateTime.now()));
+        deviceDataRepository.save(new DeviceData("sneaky peaky", "küche", 5, 80.1f, LocalDateTime.now()));
 
         // then
         verify(objectMapper, times(4)).writeValue(any(File.class), anyList());
@@ -66,10 +66,10 @@ public class DataRepositoryTest {
     void get_multiple_data_from_file() throws IOException {
 
         LocalDateTime expectedDateTime = LocalDateTime.of(2023, 05, 10, 20, 17, 30);
-        DeviceData deviceData0 = new DeviceData("sneaky peaky", "küche", 5, 10.1f, expectedDateTime);
-        DeviceData deviceData1 = new DeviceData("fancy fox", "arbeitszimmer", 1, 1.1f, expectedDateTime);
-        DeviceData deviceData2 = new DeviceData("sneaky peaky", "küche", 5, 9.1f, expectedDateTime);
-        DeviceData deviceData3 = new DeviceData("fancy fox", "arbeitszimmer", 1, 1.1f, expectedDateTime);
+        DeviceData deviceData0 = new DeviceData("sneaky peaky", "küche", 5, 80.1f, expectedDateTime);
+        DeviceData deviceData1 = new DeviceData("fancy fox", "arbeitszimmer", 1, 61.1f, expectedDateTime);
+        DeviceData deviceData2 = new DeviceData("sneaky peaky", "küche", 5, 5.1f, expectedDateTime);
+        DeviceData deviceData3 = new DeviceData("fancy fox", "arbeitszimmer", 1, 4.1f, expectedDateTime);
 
         deviceDataRepository.save(deviceData0);
         deviceDataRepository.save(deviceData1);
@@ -96,7 +96,7 @@ public class DataRepositoryTest {
 
     @Test
     void get_data_from_file() throws IOException {
-        DeviceData deviceData = new DeviceData("fancy fox", "arbeitszimmer", 1, 1.1f, LocalDateTime.now());
+        DeviceData deviceData = new DeviceData("fancy fox", "arbeitszimmer", 1, 63.1f, LocalDateTime.now());
         deviceDataRepository.save(deviceData);
         verify(objectMapper, times(1)).writeValue(any(File.class), anyList());
 
