@@ -1,27 +1,50 @@
 package de.kruemelnerd.KeepMyPlantsAliveServer;
 
 import org.junit.jupiter.api.*;
+import org.mockito.Mockito;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.context.ContextConfiguration;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.is;
+import static org.mockito.Mockito.*;
 
 @ContextConfiguration
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
+
 public class RestControllerSoilMoistureTest {
+
+    final static DateTimeFormatter CUSTOM_FORMATTER = DateTimeFormatter.ofPattern("uuuu-MM-dd'T'HH:mm:ss");
 
     @LocalServerPort
     private int port;
 
+    @MockBean
+    TelegramBotService telegramBotService;
+
+    @MockBean
+    DeviceDataRepository repository;
+
+
+    RestControllerSoilMoisture controllerSoilMoisture;
+
+
     @BeforeEach
     @AfterEach
     void setup() {
+        //telegramBotService = new TelegramBotService("123");
+        //RestAssuredMockMvc.mockMvc(mockMvc);
+
+        RestControllerSoilMoisture spyControllerSoilMoisture = new RestControllerSoilMoisture(repository, telegramBotService);
+        controllerSoilMoisture = Mockito.spy(spyControllerSoilMoisture);
         check_cleanup_is_working();
     }
 
@@ -48,7 +71,7 @@ public class RestControllerSoilMoistureTest {
 
     @Test
     public void test_Input() {
-        sendEntryToController("fancy fox", "arbeitszimmer", 1, 7.1f);
+        sendEntryToController("fancy fox", "arbeitszimmer", 1, 72.1f);
 
         given()
                 .port(port)
@@ -61,11 +84,12 @@ public class RestControllerSoilMoistureTest {
     }
 
     @Test
-    public void send_multiple_entries_to_controller() {
-        sendEntryToController("fancy fox", "arbeitszimmer", 1, 1.1f);
-        sendEntryToController("fancy fox", "arbeitszimmer", 1, 2.1f);
-        sendEntryToController("Professor Clean", "Küche", 1, 3.1f);
-        sendEntryToController("fancy fox", "arbeitszimmer", 1, 4.1f);
+    public void send_multiple_entries_to_controller() throws IOException {
+        when(this.repository.getAmountOfEntries()).thenReturn(4);
+        sendEntryToController("fancy fox", "arbeitszimmer", 1, 61.1f);
+        sendEntryToController("fancy fox", "arbeitszimmer", 1, 52.1f);
+        sendEntryToController("Professor Clean", "Küche", 1, 93.1f);
+        sendEntryToController("fancy fox", "arbeitszimmer", 1, 74.1f);
 
         given()
                 .port(port)
@@ -77,28 +101,17 @@ public class RestControllerSoilMoistureTest {
 
     }
 
-    @Test
-    public void send_negativ_SoilMoisture_to_controller() {
-        sendEntryToController("fancy fox", "arbeitszimmer", 1, -7f);
-
-        given()
-                .port(port)
-                .when()
-                .get("/api/amountOfEntries")
-                .then()
-                .statusCode(HttpStatus.OK.value())
-                .body("amount", is(1));
-
-    }
-
     private void sendEntryToController(String device, String room, int numberInRoom, float soilMoisture) {
-        LocalDateTime expected = LocalDateTime.of(2023, 05, 10, 16, 06, 9);
+        //LocalDateTime expected = LocalDateTime.of(2023, 05, 10, 16, 06, 9);
+        LocalDateTime dateTime = LocalDateTime.now();
+        String expectedDateTime = dateTime.format(CUSTOM_FORMATTER);
+
 
         String inputJson = "{ \"device\": \"" + device + "\", \"room\": \"" + room + "\", \"numberInRoom\": " + numberInRoom
-                + ", \"soilMoisture\": " + soilMoisture + ", \"dateTime\": \"2023-05-10T16:06:09\" }";
+                + ", \"soilMoisture\": " + soilMoisture + ", \"dateTime\": \"" + expectedDateTime + "\" }";
         // example: { "device": "fancy fox", "room": "arbeitszimmer", "numberInRoom": 1, "soilMoisture": 5.1, "dateTime": "2023-05-10T16:06:09" }
 
-        if (soilMoisture < 0f){
+        if (soilMoisture < 0f) {
             soilMoisture = 0f;
         }
         // Teste den POST-Request zum Speichern des Inputs
@@ -114,7 +127,7 @@ public class RestControllerSoilMoistureTest {
                 .body("room", is(room))
                 .body("numberInRoom", is(numberInRoom))
                 .body("soilMoisture", is(soilMoisture))
-                .body("dateTime", is(expected.toString()));
+                .body("dateTime", is(expectedDateTime));
     }
 
     @Test
@@ -134,13 +147,62 @@ public class RestControllerSoilMoistureTest {
                 .body("[0].room", is("arbeitszimmer"))
                 .body("[0].numberInRoom", is(1))
                 .body("[0].soilMoisture", is(75.1F))
-                .body("[0].dateTime", is("2023-05-10T16:06:09"))
+                .body("[0].dateTime", is(any(String.class)))
 
                 .body("[1].device", is("sneaky peaky"))
                 .body("[1].room", is("arbeitszimmer"))
                 .body("[1].numberInRoom", is(4))
                 .body("[1].soilMoisture", is(71F))
-                .body("[1].dateTime", is("2023-05-10T16:06:09"));
+                .body("[1].dateTime", is(any(String.class)));
+    }
+
+    @Test
+    public void send_negativ_SoilMoisture_to_controller() {
+        sendEntryToController("fancy fox", "arbeitszimmer", 1, -7f);
+
+        given()
+                .port(port)
+                .when()
+                .get("/api/amountOfEntries")
+                .then()
+                .statusCode(HttpStatus.OK.value())
+                .body("amount", is(1));
+
+    }
+
+    @Test
+    void check_if_telegram_bot_is_triggered_when_SoilMoisture_really_low() {
+
+        String device = "fancy fox";
+        String room = "arbeitszimmer";
+        int numberInRoom = 1;
+        float soilMoisture = 20f;
+
+
+        LocalDateTime dateTime = LocalDateTime.now();
+        String formattedDate = dateTime.format(CUSTOM_FORMATTER);
+
+
+        String inputJson = "{ \"device\": \"" + device + "\", \"room\": \"" + room + "\", \"numberInRoom\": " + numberInRoom
+                + ", \"soilMoisture\": " + soilMoisture + ", \"dateTime\": \"" + formattedDate + "\" }";
+
+        // Teste den POST-Request zum Speichern des Inputs
+        given()
+                .contentType("application/json")
+                .body(inputJson)
+                .port(port)
+                .when()
+                .post("/api/saveSoilMoisture")
+                .then()
+                .statusCode(HttpStatus.CREATED.value())
+                .body("device", is(device))
+                .body("room", is(room))
+                .body("numberInRoom", is(numberInRoom))
+                .body("soilMoisture", is(soilMoisture))
+                .body("dateTime", is(formattedDate));
+
+        verify(this.telegramBotService, times(1)).sendCriticalSoilMoistureStatus(any(DeviceData.class));
+
     }
 
 

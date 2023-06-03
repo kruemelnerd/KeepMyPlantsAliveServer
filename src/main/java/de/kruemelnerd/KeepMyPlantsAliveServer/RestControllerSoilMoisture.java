@@ -24,14 +24,14 @@ public class RestControllerSoilMoisture {
 
     DeviceDataRepository repository;
 
+    private TelegramBotService telegramBotService;
+
     @Autowired
-    public RestControllerSoilMoisture(DeviceDataRepository repository) {
+    public RestControllerSoilMoisture(DeviceDataRepository repository, TelegramBotService service) {
         this.repository = repository;
+        this.telegramBotService = service;
     }
 
-
-    @Autowired
-    private TelegramBotService telegramBotService;
 
     @GetMapping("/send")
     public String sendMessage(@RequestParam String message) {
@@ -47,7 +47,7 @@ public class RestControllerSoilMoisture {
                 data.setSoilMoisture(0);
             }
             if (data.getSoilMoisture() < 30) {
-                //telegramBotService.sendCriticalSoilMoistureStatus(data);
+                telegramBotService.sendCriticalSoilMoistureStatus(data);
             }
             repository.save(data);
         } catch (IOException e) {
