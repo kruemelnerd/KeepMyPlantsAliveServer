@@ -22,12 +22,12 @@ import static org.mockito.Mockito.verify;
 @ExtendWith(MockitoExtension.class)
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 
-public class DataRepositoryTest {
+public class FileRepositoryTest {
 
     @Spy
     ObjectMapper objectMapper;
     @InjectMocks
-    DeviceDataRepository deviceDataRepository;
+    FileRepository deviceDataRepository;
 
     @BeforeEach
     @AfterEach
