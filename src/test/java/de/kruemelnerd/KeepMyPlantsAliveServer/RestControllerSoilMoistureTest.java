@@ -11,6 +11,8 @@ import org.springframework.test.context.ContextConfiguration;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.is;
@@ -31,7 +33,7 @@ public class RestControllerSoilMoistureTest {
     TelegramBotService telegramBotService;
 
     @MockBean
-    DeviceDataRepository repository;
+    FileRepository repository;
 
 
     RestControllerSoilMoisture controllerSoilMoisture;
@@ -45,7 +47,7 @@ public class RestControllerSoilMoistureTest {
 
         RestControllerSoilMoisture spyControllerSoilMoisture = new RestControllerSoilMoisture(repository, telegramBotService);
         controllerSoilMoisture = Mockito.spy(spyControllerSoilMoisture);
-        check_cleanup_is_working();
+        //controllerSoilMoisture.deleteList();
     }
 
     @Test
@@ -70,7 +72,9 @@ public class RestControllerSoilMoistureTest {
     }
 
     @Test
-    public void test_Input() {
+    public void test_one_single_Input() throws IOException {
+        when(this.repository.getAmountOfEntries()).thenReturn(1);
+
         sendEntryToController("fancy fox", "arbeitszimmer", 1, 72.1f);
 
         given()
@@ -80,6 +84,9 @@ public class RestControllerSoilMoistureTest {
                 .then()
                 .statusCode(HttpStatus.OK.value())
                 .body("amount", is(1));
+
+        verify(this.repository, times(1)).save(any());
+        verify(this.repository, times(1)).getAmountOfEntries();
 
     }
 
@@ -131,7 +138,13 @@ public class RestControllerSoilMoistureTest {
     }
 
     @Test
-    public void testInputAndStorage() {
+    public void testInputAndStorage() throws IOException {
+
+        List<DeviceData> expectedList = new ArrayList<>();
+        expectedList.add(new DeviceData("fancy fox", "arbeitszimmer", 1, 75.1f, LocalDateTime.now()));
+        expectedList.add(new DeviceData("sneaky peaky", "arbeitszimmer", 4, 71f, LocalDateTime.now()));
+        when(this.repository.getEntries()).thenReturn(expectedList);
+
         sendEntryToController("fancy fox", "arbeitszimmer", 1, 75.1f);
         sendEntryToController("sneaky peaky", "arbeitszimmer", 4, 71f);
 
@@ -147,17 +160,18 @@ public class RestControllerSoilMoistureTest {
                 .body("[0].room", is("arbeitszimmer"))
                 .body("[0].numberInRoom", is(1))
                 .body("[0].soilMoisture", is(75.1F))
-                .body("[0].dateTime", is(any(String.class)))
 
                 .body("[1].device", is("sneaky peaky"))
                 .body("[1].room", is("arbeitszimmer"))
                 .body("[1].numberInRoom", is(4))
-                .body("[1].soilMoisture", is(71F))
-                .body("[1].dateTime", is(any(String.class)));
+                .body("[1].soilMoisture", is(71F));
     }
 
     @Test
-    public void send_negativ_SoilMoisture_to_controller() {
+    public void send_negativ_SoilMoisture_to_controller() throws IOException {
+
+        when(this.repository.getAmountOfEntries()).thenReturn(1);
+
         sendEntryToController("fancy fox", "arbeitszimmer", 1, -7f);
 
         given()

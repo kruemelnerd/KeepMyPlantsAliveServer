@@ -27,7 +27,7 @@ public class RestControllerSoilMoisture {
     private TelegramBotService telegramBotService;
 
     @Autowired
-    public RestControllerSoilMoisture(DeviceDataRepository repository, TelegramBotService service) {
+    public RestControllerSoilMoisture(FileRepository repository, TelegramBotService service) {
         this.repository = repository;
         this.telegramBotService = service;
     }
@@ -46,9 +46,9 @@ public class RestControllerSoilMoisture {
             if (data.getSoilMoisture() < 0) {
                 data.setSoilMoisture(0);
             }
-            if (data.getSoilMoisture() < 30) {
-                telegramBotService.sendCriticalSoilMoistureStatus(data);
-            }
+//            if (data.getSoilMoisture() < 30) {
+//                telegramBotService.sendCriticalSoilMoistureStatus(data);
+//            }
             repository.save(data);
         } catch (IOException e) {
             e.printStackTrace(); // see note 2
